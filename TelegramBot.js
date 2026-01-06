@@ -2,7 +2,7 @@
 // TELEGRAM BOT FUNCTIONS
 // ============================================
 
-const TELEGRAM_TOKEN = '8312352125:AAFgCzZ16n9uQJiL6woitfFRA14YwPQQ324';
+const TELEGRAM_TOKEN = '8312352125:AAFgCzZ16n9uQJiL6woitfFRA14YwPQQ';
 const LOG_SHEET_NAME = 'Logs';
 const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 
