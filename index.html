@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>IT HELPDESK</title>
+
+<!-- Perbarui CSP untuk mengizinkan font dari Google Fonts dan gambar inline -->
+<meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self' https:; 
+               script-src 'self' https://cdn.jsdelivr.net https://apis.google.com https://script.google.com 'unsafe-inline' 'unsafe-eval'; 
+               style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; 
+               font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; 
+               img-src 'self' data: https:;
+               frame-src 'self' https://script.google.com;">
+  
+  <!-- Bootstrap dengan integrity check -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
+        crossorigin="anonymous">
+  
+  <!-- Font Awesome dengan integrity check -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" 
+          integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer"></script>
+  
+  <style>
+    /* Gaya Modern dengan Gradien dan Animasi */
+    :root {
+      --primary: #4361ee; /* Modern Blue */
+      --secondary: #3f37c9;
+      --accent: #f72585; /* Pink Accent */
+      --success: #06ffa5;
+      --warning: #ffbe0b;
+      --danger: #fb5607;
+      --dark: #2b2d42;
+      --light: #f8f9fa;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--dark);
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Loading Screen - Perbaikan */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, var(--primary), transparent 30%);
+      animation: spin 1.5s linear infinite;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .spinner:before {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: white;
+      top: 5px;
+      left: 5px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Perbaikan posisi form auth */
+    #authForm {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      z-index: 999;
+    }
+
+    /* Sembunyikan main-content saat authForm aktif */
+    #authForm:not(.d-none) ~ .main-content {
+      display: none;
+    }
+
+    /* Sembunyikan keterangan Google Apps Script */
+    .goog-inline-block, .cst, .goog-te-banner-frame, .goog-te-gadget {
+      display: none !important;
+    }
+
+    /* Sembunyikan elemen yang mungkin mengandung teks tersebut */
+    div[style*="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px;"],
+    div[style*="background: rgba(0,0,0,0.8)"],
+    div[style*="color: white; font-size: 12px;"] {
+      display: none !important;
+    }
+
+    /* Sidebar Modern - Perbaikan posisi */
+    .sidebar {
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      z-index: 1000;
+      overflow-y: auto;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h4 {
+      color: white;
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-header h4 i {
+      margin-right: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding-left: 2rem;
+    }
+
+    .nav-link:hover:before, .nav-link.active:before {
+      transform: scaleY(1);
+    }
+
+    .nav-link i {
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    /* Main Content - Perbaikan margin */
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.collapsed {
+      margin-left: 0;
+    }
+
+    /* Card Modern */
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      background: white;
+      margin-bottom: 1.5rem;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--hover-shadow);
+    }
+
+    .card-header {
+      background: var(--bg-gradient);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 1rem 1.5rem;
+    }
+
+    /* Button Modern */
+    .btn {
+      border-radius: 50px;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--bg-gradient);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b388 100%);
+      color: var(--dark);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #fb5607 0%, #c1121f 100%);
+      color: white;
+    }
+
+    /* Form Modern */
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Table Modern */
+    .table {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .table thead th {
+      background: var(--bg-gradient);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 1rem;
+    }
+
+    .table tbody tr {
+      transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    /* Notification Container */
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 350px;
+    }
+
+    .notification {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+      border-left: 4px solid var(--success);
+    }
+
+    .notification.error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .notification.warning {
+      border-left: 4px solid var(--warning);
+    }
+
+    .notification.info {
+      border-left: 4px solid var(--primary);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 280px; /* Tetap gunakan width asli, tapi sembunyikan */
+    transform: translateX(-100%);
+    box-shadow: none; /* Hilangkan shadow saat di mobile */
+  }
+  
+  .sidebar.show {
+    transform: translateX(0);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); /* Tampilkan shadow saat terbuka */
+  }
+  
+  .main-content {
+    margin-left: 0; /* Pastikan margin nol saat sidebar sembunyi */
+    padding: 1rem;
+  }
+  
+  /* Perbaiki untuk card agar tidak terlalu rapat */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Perbaikan untuk tombol */
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Perbaikan untuk judul */
+  h2, h3, h4, h5 {
+    font-size: 1.25rem;
+  }
+  
+  /* Perbaikan untuk tabel */
+  .table-responsive {
+    border: none;
+  }
+  
+  .table {
+    font-size: 0.875rem;
+  }
+  
+  .table th, .table td {
+    padding: 0.5rem;
+    vertical-align: middle;
+  }
+
+  /* * Perbaikan untuk tombol aksi di tabel */ */
+  .table .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .table .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Perbaikan untuk form */
+  .form-control {
+    font-size: 1rem;
+  }
+  
+  /* Perbaikan untuk modal */
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  /* Perbaikan untuk notifikasi */
+  .notification-container {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="notification-container" id="notificationContainer">
+    <!-- Notifikasi akan muncul di sini -->
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Loading Application...</p>
+  </div>
+
+  <!-- Main App Container -->
+  <div id="app" style="display: none;">
+    <nav class="sidebar p-3 d-none">
+      <div class="sidebar-header">
+        <h4><i class="fas fa-rocket me-2"></i> IT HELPDESK</h4>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('home')"><i class="fas fa-home me-2"></i> Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('laporan')"><i class="fas fa-table me-2"></i> Laporan</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('task')"><i class="fas fa-tasks me-2"></i> Tasks</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('analytics')"><i class="fas fa-chart-bar me-2"></i> Analytics</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('pdf')"><i class="fas fa-file-pdf me-2"></i> Generate PDF</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('backup')"><i class="fas fa-save me-2"></i> Backup & Restore</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('profile')"><i class="fas fa-user me-2"></i> Profile</a></li>
+        <li class="nav-item d-none" id="adminNav"><a class="nav-link" href="#" onclick="showSection('admin')"><i class="fas fa-users-cog me-2"></i> Manage Users</a></li>
+        <li class="nav-item mt-auto"><a class="nav-link text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+      <button class="btn btn-primary d-md-none mb-3" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+      <div id="authForm" class="row justify-content-center align-items-center">
+        <div class="col-md-5 col-lg-4">
+          <div class="card shadow-lg">
+            <div class="card-body p-4">
+              <h2 class="text-center mb-4 fw-bold">Login</h2>
+              <div id="loginSection">
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email</label>
+                  <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                  <label for="loginPass" class="form-label">Password</label>
+                  <input type="password" id="loginPass" class="form-control" placeholder="Password">
+                </div>
+                <button class="btn btn-primary w-100" onclick="login()">Login</button>
+              </div>
+              <div id="registerSection" class="d-none">
+                <h4 class="text-center mb-3 fw-bold">Register</h4>
+                <div class="mb-3">
+                  <label for="regEmail" class="form-label">Email</label>
+                  <input type="email" id="regEmail" class="form-control" placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                  <label for="regPass" class="form-label">Password</label>
+                  <input type="password" id="regPass" class="form-control" placeholder="Password">
+                </div>
+                <div class="mb-3">
+                  <label for="regFullName" class="form-label">Full Name</label>
+                  <input type="text" id="regFullName" class="form-control" placeholder="John Doe">
+                </div>
+                <div class="mb-3">
+                  <label for="regTelegram" class="form-label">Telegram ID (Optional)</label>
+                  <input type="text" id="regTelegram" class="form-control" placeholder="@telegram_id">
+                </div>
+                <button class="btn btn-success w-100" onclick="register()">Register</button>
+              </div>
+              <hr>
+              <p class="text-center mb-0">Belum punya akun? <a href="#" onclick="showAuthTab('register')">Register</a></p>
+              <p class="text-center mb-0 mt-1">Sudah punya? <a href="#" onclick="showAuthTab('login')">Login</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="homeSection" class="d-none">
+        <h2>Home Dashboard</h2>
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card p-4">
+              <h4>Selamat datang, <span id="userFullName">User</span>!</h4>
+              <p class="mb-1">Role: <span id="userRole" class="badge bg-primary">user</span></p>
+              <p class="mb-0">Total Laporan Harian: <span id="laporanCount" class="fw-bold">0</span></p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-4 text-center">
+              <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+              <h5>Aktivitas Anda</h5>
+              <p class="text-muted">Lihat dan kelola laporan Anda dengan mudah.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="laporanSection" class="d-none">
+        <div class="card p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Data Laporan</h4>
+            <div class="d-flex align-items-center">
+              <select id="laporanTypeSelector" class="form-select me-2" onchange="switchLaporanView()">
+                <option value="harian">Laporan Harian</option>
+                <option value="resetDevice">Laporan Reset Device</option>
+              </select>
+              <button class="btn btn-sm btn-info" onclick="loadReportData()">
+                <i class="fas fa-sync"></i> Refresh
+              </button>
+            </div>
+          </div>
+          <div id="laporanStatus" class="mt-2"></div>
+        </div>
+        <div class="card p-3">
+          <div class="table-responsive">
+          <table class="table table-striped table-hover" id="laporanTable">
+            <thead id="laporanTableHead">
+              <!-- Header akan diisi oleh JavaScript -->
+            </thead>
+            <tbody id="laporanTableBody">
+              <!-- Data akan diisi oleh JavaScript -->
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-between align-items-center mt-3" id="laporanPagination">
+            <!-- Pagination controls akan diisi oleh JavaScript -->
+        </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Di dalam id="pdfSection" di index.txt -->
+      <div id="pdfSection" class="d-none">
+          <h2>Generate PDF</h2>
+          
+          <!-- Card Generate PDF yang sudah ada -->
+          <div class="card p-4 mb-4">
+            <div class="mb-3">
+              <label for="pdfTypeSelector" class="form-label">Pilih Jenis Laporan</label>
+              <select id="pdfTypeSelector" class="form-select" onchange="toggleDateRange()">
+                <option value="harian">Laporan Harian</option>
+                <option value="resetDevice">Laporan Reset Device</option>
+              </select>
+            </div>
+
+            <!-- TAMBAHKAN INPUT PERIODE TANGGAL INI -->
+            <div id="dateRangeSection" class="d-none">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="startDate" class="form-label">Tanggal Awal</label>
+                  <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="endDate" class="form-label">Tanggal Akhir</label>
+                  <input type="date" class="form-control" id="endDate">
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="assessor1" class="form-label">Diketahui Oleh</label>
+              <input type="text" id="assessor1" class="form-control" placeholder="Guntur Sulistyo R">
+            </div>
+            <div class="mb-3">
+              <label for="assessor2" class="form-label">Diperiksa Oleh</label>
+              <input type="text" id="assessor2" class="form-control" placeholder="AMIN">
+            </div>
+            <div class="mb-3">
+              <label for="customDate" class="form-label">Tanggal Laporan (Opsional)</label>
+              <input type="date" id="customDate" class="form-control">
+            </div>
+            <button class="btn btn-success w-100 mb-3" onclick="generatePdf()">
+              <i class="fas fa-file-pdf"></i> Cetak PDF
+            </button>
+            <div id="pdfResult">
+              <a id="pdfUrl" class="btn btn-outline-primary w-100 d-none" target="_blank">
+                <i class="fas fa-download"></i> Download PDF
+              </a>
+            </div>
+          </div>
+
+          <!-- TAMBAHKAN CONTAINER RIWAYAT PDF INI -->
+          <div class="card p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Riwayat PDF</h5>
+                  <button class="btn btn-sm btn-info" onclick="loadPdfHistory()">
+                      <i class="fas fa-sync"></i> Refresh
+                  </button>
+              </div>
+              <div class="table-responsive mt-3">
+                  <table class="table table-hover" id="pdfHistoryTable">
+                      <thead>
+                          <tr>
+                              <th>Nama File</th>
+                              <th>Dibuat Pada</th>
+                              <th>Ukuran</th>
+                              <th>Aksi</th>
+                          </tr>
+                      </thead>
+                      <tbody id="pdfHistoryTableBody">
+                          <!-- Data akan diisi oleh JavaScript -->
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+
+      <div id="profileSection" class="d-none">
+        <h2>Profile</h2>
+        <div class="card p-4">
+          <div class="mb-3">
+            <label for="newFullName" class="form-label">Full Name</label>
+            <input type="text" id="newFullName" class="form-control" placeholder="New Full Name">
+          </div>
+          <div class="mb-3">
+            <label for="newPass" class="form-label">New Password</label>
+            <input type="password" id="newPass" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah">
+          </div>
+          <div class="mb-3">
+            <label for="newTelegram" class="form-label">Telegram ID</label>
+            <input type="text" id="newTelegram" class="form-control" placeholder="New Telegram ID">
+          </div>
+          <div class="card p-4">
+            <h4>Telegram Connection</h4>
+            <div id="telegramStatus">
+              <!-- Status akan dimuat di sini -->
+            </div>
+          </div>
+          <button class="btn btn-primary w-100 mb-3" onclick="updateProfile()">Update Profile</button>
+          <button class="btn btn-info w-100" onclick="generateToken()">Generate Bot Token</button>
+          <div id="tokenLink" class="mt-3"></div>
+        </div>
+      </div>
+
+      <div id="adminSection" class="d-none">
+        <h2>Manage Users</h2>
+        
+        <div class="card p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">User List</h4>
+            <div>
+              <button class="btn btn-sm btn-info me-2" onclick="loadUsersForAdmin()">
+                <i class="fas fa-sync"></i> Refresh
+              </button>
+            </div>
+          </div>
+          <div id="usersStatus" class="mt-2"></div>
+        </div>
+        
+        <div class="card p-3 mb-4">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover" id="usersTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Email & Username</th>
+                  <th>Full Name</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Telegram Token</th>
+                  <th>Chat ID</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Data akan diisi oleh JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="card p-4">
+          <h4>Edit User Data</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">User Email to Edit</label>
+                <input type="email" id="resetEmail" class="form-control" placeholder="user@example.com" readonly>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">New Status</label>
+                <select id="resetStatus" class="form-select">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="pending">Pending</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">New Telegram Token</label>
+                <input type="text" id="resetTelegram" class="form-control" placeholder="Telegram Token">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">New Chat ID</label>
+                <input type="text" id="resetChatId" class="form-control" placeholder="Chat ID">
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">New Password (kosongkan jika tidak ingin mengubah)</label>
+            <input type="password" id="resetPass" class="form-control" placeholder="New Password">
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Perhatian:</strong> Reset password akan mengubah password user. User akan perlu login ulang.
+          </div>
+          
+          <button class="btn btn-warning w-100" onclick="resetUser()">
+            <i class="fas fa-sync-alt"></i> Update User Data
+          </button>
+        </div>
+      </div>
+
+      <div id="analyticsSection" class="d-none">
+        <h2>Analytics Dashboard</h2>
+        
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body">
+                <h5 class="card-title">Total Laporan</h5>
+                <h2 id="totalReports">0</h2>
+                <p class="card-text"><i class="fas fa-chart-line"></i> <span id="reportsGrowth">0%</span> dari bulan lalu</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-success text-white">
+              <div class="card-body">
+                <h5 class="card-title">Task Selesai</h5>
+                <h2 id="completedTasks">0</h2>
+                <p class="card-text"><i class="fas fa-check-circle"></i> <span id="completionRate">0%</span> tingkat penyelesaian</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+              <div class="card-body">
+                <h5 class="card-title">Task Pending</h5>
+                <h2 id="pendingTasks">0</h2>
+                <p class="card-text"><i class="fas fa-clock"></i> <span id="pendingRate">0%</span> menunggu penyelesaian</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-info text-white">
+              <div class="card-body">
+                <h5 class="card-title">Aktivitas Hari Ini</h5>
+                <h2 id="todayActivity">0</h2>
+                <p class="card-text"><i class="fas fa-calendar-day"></i> <span id="activityStatus">Normal</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Grafik Laporan Bulanan</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Distribusi Proyek</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="projectChart" width="400" height="400"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="taskSection" class="d-none">
+        <h2>Task Management</h2>
+        
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Task List</h5>
+                <button class="btn btn-primary btn-sm" onclick="showAddTaskModal()">
+                  <i class="fas fa-plus"></i> Add Task
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" id="taskTable">
+                    <thead>
+                      <tr>
+                        <th>Task</th>
+                        <th>Project</th>
+                        <th>Due Date</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Tasks will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Upcoming Deadlines</h5>
+              </div>
+              <div class="card-body">
+                <div id="upcomingDeadlines">
+                  <!-- Upcoming deadlines will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal untuk Add/Edit Task -->
+      <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="taskModalLabel">Add Task</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="taskForm">
+                <input type="hidden" id="taskId">
+                <div class="mb-3">
+                  <label for="taskName" class="form-label">Task Name</label>
+                  <input type="text" class="form-control" id="taskName" required>
+                </div>
+                <div class="mb-3">
+                  <label for="taskProject" class="form-label">Project</label>
+                  <input type="text" class="form-control" id="taskProject" required>
+                </div>
+                <div class="mb-3">
+                  <label for="taskDueDate" class="form-label">Due Date</label>
+                  <input type="date" class="form-control" id="taskDueDate" required>
+                </div>
+                <div class="mb-3">
+                  <label for="taskPriority" class="form-label">Priority</label>
+                  <select class="form-select" id="taskPriority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="taskDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" onclick="saveTask()">Save Task</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="backupSection" class="d-none">
+        <h2>Backup & Restore Data</h2>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Backup Data</h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text">Create a backup of all your data. This will include all reports, tasks, and settings.</p>
+                <div class="mb-3">
+                  <label for="backupName" class="form-label">Backup Name</label>
+                  <input type="text" class="form-control" id="backupName" placeholder="My Backup">
+                </div>
+                <div class="mb-3">
+                  <label for="backupDescription" class="form-label">Description (Optional)</label>
+                  <textarea class="form-control" id="backupDescription" rows="3" placeholder="Backup description"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createBackup()">
+                  <i class="fas fa-download"></i> Create Backup
+                </button>
+                <div id="backupResult" class="mt-3"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Restore Data</h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text">Restore your data from a previous backup. This will replace all current data.</p>
+                <div class="mb-3">
+                  <label for="backupFile" class="form-label">Select Backup File</label>
+                  <input type="file" class="form-control" id="backupFile" accept=".json">
+                </div>
+                <button class="btn btn-warning" onclick="restoreBackup()">
+                  <i class="fas fa-upload"></i> Restore Data
+                </button>
+                <div id="restoreResult" class="mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Backup History</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" id="backupHistoryTable">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Created At</th>
+                        <th>Size</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Backup history will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal untuk Edit Laporan -->
+    <div class="modal fade" id="editLaporanModal" tabindex="-1" aria-labelledby="editLaporanModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editLaporanModalLabel">Edit Laporan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editLaporanForm">
+              <input type="hidden" id="editLaporanIndex">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="editLaporanTanggal" class="form-label">Tanggal</label>
+                  <input type="date" class="form-control" id="editLaporanTanggal" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="editLaporanProject" class="form-label">Project</label>
+                  <input type="text" class="form-control" id="editLaporanProject" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="editLaporanTask" class="form-label">Item Task</label>
+                <input type="text" class="form-control" id="editLaporanTask" required>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="editLaporanProgress" class="form-label">Progress</label>
+                  <input type="text" class="form-control" id="editLaporanProgress" placeholder="Contoh: 50%">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="editLaporanTarget" class="form-label">Target Date</label>
+                  <input type="date" class="form-control" id="editLaporanTarget">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="editLaporanNote" class="form-label">Note</label>
+                <textarea class="form-control" id="editLaporanNote" rows="3"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" onclick="saveEditedLaporan()">Simpan Perubahan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Bootstrap Bundle dengan Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+          crossorigin="anonymous"></script>
+
+  <script>
+    // ========== GLOBAL VARIABLES ==========
+    let currentUser = null;
+    let isLoading = false;
+    let currentReportType = 'harian'; // 'harian' atau 'resetDevice'
+    let currentLaporanData = []; // Untuk menyimpan data laporan sementara
+    let currentPage = 1;
+    let pageSize = 10; // Jumlah data per halaman
+    let totalRows = 0;
+    let totalPages = 0;
+
+    // ========== LOADING MANAGEMENT ==========
+    function showLoading() {
+      document.getElementById('loading').style.display = 'flex';
+      isLoading = true;
+    }
+    
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      isLoading = false;
+    }
+    
+    function showError(message) {
+      hideLoading();
+      alert('Error: ' + message);
+    }
+
+    // Fungsi untuk menampilkan pesan (mengganti alert)
+    function showMessage(message, type = 'success') {
+      // Buat elemen toast untuk notifikasi yang lebih baik
+      const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+      toastContainer.appendChild(toast);
+      const bsToast = new bootstrap.Toast(toast);
+      bsToast.show();
+    }
+
+    function createToastContainer() {
+      const container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'toast-container position-fixed top-0 end-0 p-3';
+      document.body.appendChild(container);
+      return container;
+    }
+
+    // Fungsi formatDate untuk frontend
+    function formatDate(date, format) {
+      if (!date) return '';
+      
+      try {
+        // Jika sudah string, return as-is
+        if (typeof date === 'string') {
+          return date;
+        }
+        
+        // Jika Date object, format ke dd/MM/yyyy
+        if (date instanceof Date) {
+          const day = date.getDate().toString().padStart(2, '0');
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const year = date.getFullYear();
+          
+          if (format === 'dd/MM/yyyy') {
+            return `${day}/${month}/${year}`;
+          } else if (format === 'dd/MM/yyyy HH:mm:ss') {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+          }
+          
+          return `${day}/${month}/${year}`;
+        }
+        
+        return String(date);
+      } catch (error) {
+        console.error('Error format date:', error);
+        return String(date);
+      }
+    }
+
+    // ========== INITIALIZATION ==========
+    function initApp() {
+      console.log('Initializing app...');
+      
+      // Cek apakah Google Script API tersedia
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        showError('Google Apps Script API not loaded. Please refresh the page.');
+        return;
+      }
+      
+      // Cek session storage untuk auto login
+      const storedEmail = localStorage.getItem('userEmail');
+      if (storedEmail) {
+        console.log('Found stored email:', storedEmail);
+        autoLogin(storedEmail);
+      } else {
+        console.log('No stored session found, showing login form');
+        hideLoading();
+      }
+    }
+
+    // ========== AUTO LOGIN ==========
+    function autoLogin(email) {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            console.log('Auto login successful');
+            currentUser = { ...response.data, email: email };
+            showDashboard();
+          } else {
+            console.log('Auto login failed:', response.message);
+            localStorage.removeItem('userEmail');
+            hideLoading();
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Auto login error:', error);
+          localStorage.removeItem('userEmail');
+          hideLoading();
+        })
+        .loginUser(email, '');
+    }
+
+    // ========== UI FUNCTIONS ==========
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.main-content');
+      
+      if (window.innerWidth < 768) {
+        sidebar.classList.toggle('show');
+        mainContent.classList.toggle('shifted');
+      } else {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+      }
+    }
+
+    function showSection(sectionId) {
+      // Sembunyikan semua section
+      document.querySelectorAll('[id$="Section"]').forEach(sec => sec.classList.add('d-none'));
+      
+      // Tampilkan section yang dipilih
+      const targetSection = document.getElementById(sectionId + 'Section');
+      if (targetSection) {
+        targetSection.classList.remove('d-none');
+      }
+      
+      // Jika di mobile, tutup sidebar setelah memilih menu
+      if (window.innerWidth < 768) {
+        document.querySelector('.sidebar').classList.remove('show');
+        document.querySelector('.main-content').classList.remove('shifted');
+      }
+      
+      // Load data berdasarkan section
+      if (sectionId === 'analytics') {
+        loadAnalytics();
+      } else if (sectionId === 'task') {
+        loadTasks();
+      } else if (sectionId === 'backup') {
+        loadBackupHistory();
+      } else if (sectionId === 'profile') {
+        showTelegramConnectionStatus();
+      } else if (sectionId === 'pdf') {
+        // Panggil loadPdfHistory untuk memuat data saat bagian PDF ditampilkan
+        loadPdfHistory(); 
+        toggleDateRange();
+      }
+    }
+
+    function showAuthTab(tab) {
+      document.getElementById('loginSection').classList.toggle('d-none', tab !== 'login');
+      document.getElementById('registerSection').classList.toggle('d-none', tab !== 'register');
+    }
+
+    // ========== AUTH FUNCTIONS ==========
+    function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPass').value;
+      
+      if (!email || !password) {
+        showMessage('Email dan password harus diisi', 'error');
+        return;
+      }
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            currentUser = { ...response.data, email: email };
+            localStorage.setItem('userEmail', email);
+            showMessage('Login berhasil!');
+            showDashboard();
+          } else {
+            hideLoading();
+            showMessage(response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showMessage('Login gagal: ' + error.message, 'error');
+        })
+        .loginUser(email, password);
+    }
+
+    function register() {
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPass').value;
+      const fullName = document.getElementById('regFullName').value.trim();
+      const telegram = document.getElementById('regTelegram').value.trim();
+      
+      if (!email || !password || !fullName) {
+        showMessage('Email, password, dan nama lengkap harus diisi', 'error');
+        return;
+      }
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          hideLoading();
+          if (response.success) {
+            showMessage('Registrasi berhasil! Silakan login.');
+            // Reset form
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPass').value = '';
+            document.getElementById('regFullName').value = '';
+            document.getElementById('regTelegram').value = '';
+            // Tampilkan login form
+            showAuthTab('login');
+          } else {
+            showMessage(response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showMessage('Registrasi gagal: ' + error.message, 'error');
+        })
+        .registerUser(email, password, fullName, telegram);
+    }
+
+    function logout() {
+      if (confirm('Apakah Anda yakin ingin logout?')) {
+        // Tampilkan loading
+        showLoading();
+        
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.success) {
+              // Clear local storage
+              currentUser = null;
+              localStorage.removeItem('userEmail');
+              
+              // Tampilkan pesan sukses
+              showMessage('Logout berhasil');
+              
+              // Refresh halaman setelah 1.5 detik
+              setTimeout(() => {
+                window.location.reload();
+                window.location.href = "https://script.google.com/macros/s/AKfycbxde0zEbBq45tdeH9nFypBPUMiHa-LCx_89xIOZUMfvnWO258pBNw5WrG-I43WZ3DVK/exec";
+              }, 1500);
+            } else {
+              hideLoading();
+              showMessage('Logout gagal: ' + response.message, 'error');
+            }
+          })
+          .withFailureHandler(function(error) {
+            hideLoading();
+            showMessage('Error logout: ' + error.message, 'error');
+          })
+          .logoutUser(currentUser ? currentUser.email : '');
+      }
+    }
+
+    // ========== DASHBOARD FUNCTIONS ==========
+    function showDashboard() {
+      // Sembunyikan form auth
+      document.getElementById('authForm').classList.add('d-none');
+      
+      // Tampilkan sidebar dan main content
+      document.querySelector('.sidebar').classList.remove('d-none');
+      document.querySelector('.main-content').classList.remove('d-none');
+      
+      // Mengambil data lengkap user dari master spreadsheet
+      google.script.run
+        .withSuccessHandler(function(userData) {
+          if (userData) {
+            // Update currentUser dengan data terbaru
+            currentUser = {
+              ...currentUser,
+              fullName: userData.FullName || currentUser.email.split('@')[0],
+              role: userData.Role || 'user',
+              telegramId: userData.TelegramToken || '',
+              status: userData.Status || 'active'
+            };
+            
+            // Update UI dengan data terbaru
+            document.getElementById('userFullName').textContent = currentUser.fullName;
+            document.getElementById('userRole').textContent = currentUser.role;
+            
+            if (currentUser.role === 'admin') {
+              document.getElementById('adminNav').classList.remove('d-none');
+              loadUsersForAdmin();
+            } else {
+              document.getElementById('adminNav').classList.add('d-none');
+            }
+          }
+          
+          // Load laporan data default
+          loadReportData();
+          showSection('home');
+          hideLoading();
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error getting user data:', error);
+          // Fallback ke data yang ada
+          document.getElementById('userFullName').textContent = currentUser.fullName || currentUser.email.split('@')[0];
+          document.getElementById('userRole').textContent = currentUser.role || 'user';
+          
+          loadReportData();
+          showSection('home');
+          hideLoading();
+        })
+        .getUserDetail(currentUser.email);
+    }
+
+    // ========== LAPORAN FUNCTIONS (DIPERBARUI) ==========
+    function switchLaporanView() {
+      currentReportType = document.getElementById('laporanTypeSelector').value;
+      loadReportData();
+    }
+
+    // Di index.txt, ganti fungsi loadReportData dengan yang berikut:
+    // Ganti fungsi loadReportData dengan yang berikut:
+    function loadReportData(page = 1) {
+      console.log(`Loading laporan data for type: ${currentReportType}, page: ${page}`);
+      
+      if (!currentUser || !currentUser.email) {
+        console.error('User tidak tersedia');
+        return;
+      }
+      
+      // Update halaman saat ini
+      currentPage = page;
+      
+      const laporanCount = document.getElementById('laporanCount');
+      const tableHead = document.getElementById('laporanTableHead');
+      const tableBody = document.getElementById('laporanTableBody');
+      const paginationDiv = document.getElementById('laporanPagination');
+      
+      // Tampilkan loading
+      laporanCount.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+      tableBody.innerHTML = `<tr><td colspan="100%" class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div> Memuat data...</td></tr>`;
+      paginationDiv.innerHTML = ''; // Kosongkan pagination saat loading
+      
+      // Tentukan header dan fungsi backend berdasarkan tipe
+      let headers, backendFunction;
+      if (currentReportType === 'resetDevice') {
+        headers = ['No', 'Name', 'Date', 'Divisi', 'Device Model', 'Serial Number', 'Action By'];
+        backendFunction = 'getResetDeviceData';
+      } else { // default 'harian'
+        headers = ['No', 'Date', 'Project', 'Item Task', 'Progress Status', 'Target Date', 'Note'];
+        backendFunction = 'getLaporanData';
+      }
+      
+      // Tambahkan header 'Aksi' di akhir
+      headers.push('Aksi');
+
+      // Update header tabel
+      tableHead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          console.log('Data diterima:', response);
+          
+          // Update totalRows dan totalPages
+          totalRows = response.totalRows || 0;
+          totalPages = Math.ceil(totalRows / pageSize);
+          
+          // Update count (hanya untuk laporan harian)
+          if (currentReportType === 'harian') {
+            document.getElementById('laporanCount').textContent = totalRows;
+          } else {
+            document.getElementById('laporanCount').textContent = totalRows;
+          }
+          
+          // Simpan data ke variabel global (untuk edit/delete)
+          currentLaporanData = response.data || [];
+          
+          // Update tabel body
+          tableBody.innerHTML = '';
+          if (currentLaporanData.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted">Tidak ada data pada halaman ini.</td></tr>`;
+          } else {
+            currentLaporanData.forEach((row, index) => {
+              const tr = document.createElement('tr');
+              tr.setAttribute('data-row-index', (page - 1) * pageSize + index); // Atribut untuk identifikasi global
+
+              const cells = Array(headers.length - 1).fill(''); // -1 karena kolom aksi
+              for (let i = 0; i < Math.min(row.length, headers.length - 1); i++) {
+                cells[i] = row[i] || '';
+              }
+              
+              // Tambahkan styling khusus jika perlu
+              if (currentReportType === 'harian' && cells[4]) {
+                cells[4] = cells[4].includes('100%') ? `<span class="badge bg-success">${cells[4]}</span>` : `<span class="badge bg-warning">${cells[4]}</span>`;
+              }
+
+              tr.innerHTML = `<td>${cells.join('</td><td>')}</td>`;
+              
+              // Tambahkan kolom aksi
+              const actionCell = document.createElement('td');
+              if (currentReportType === 'harian') {
+                const globalIndex = (page - 1) * pageSize + index;
+                actionCell.innerHTML = `
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-warning" onclick="editLaporan(${globalIndex})"><i class="fas fa-edit"></i> Edit</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteLaporan(${globalIndex})"><i class="fas fa-trash"></i> Delete</button>
+                  </div>
+                `;
+              } else {
+                actionCell.textContent = '-';
+              }
+              tr.appendChild(actionCell);
+
+              tableBody.appendChild(tr);
+            });
+          }
+          
+          // Render kontrol pagination
+          renderPagination();
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading laporan:', error);
+          laporanCount.textContent = 'Error';
+          tableBody.innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-danger">Gagal memuat data. <a href="#" onclick="loadReportData()">Coba lagi</a></td></tr>`;
+        })
+        [backendFunction](currentUser.email, page, pageSize); // Panggil fungsi backend dengan parameter pagination
+    }
+
+    // Fungsi untuk merender kontrol pagination
+    function renderPagination() {
+      const paginationDiv = document.getElementById('laporanPagination');
+      if (!paginationDiv) return;
+
+      if (totalPages <= 1) {
+        paginationDiv.innerHTML = ''; // Sembunyikan jika hanya 1 halaman
+        return;
+      }
+
+      let paginationHTML = `
+        <div class="d-flex align-items-center">
+          <span class="me-3">Halaman ${currentPage} dari ${totalPages} (Total: ${totalRows} data)</span>
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+      `;
+
+      // Tombol Previous
+      paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="loadReportData(${currentPage - 1})" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      `;
+
+      // Nomor halaman
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+          <li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="loadReportData(${i})">${i}</a>
+          </li>
+        `;
+      }
+
+      // Tombol Next
+      paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="loadReportData(${currentPage + 1})" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      `;
+
+      paginationHTML += `
+          </ul>
+        </nav>
+      `;
+
+      paginationDiv.innerHTML = paginationHTML;
+    }
+
+    // ========== PDF FUNCTIONS ==========
+    // Fungsi untuk menampilkan/menyembunyikan input periode tanggal
+    function toggleDateRange() {
+      const pdfType = document.getElementById('pdfTypeSelector').value;
+      const dateRangeSection = document.getElementById('dateRangeSection');
+      
+      if (pdfType === 'resetDevice') {
+        dateRangeSection.classList.remove('d-none');
+      } else {
+        dateRangeSection.classList.add('d-none');
+      }
+    }
+
+    // Di index.txt, di dalam tag <script>
+    function generatePdf() {
+      if (!currentUser || !currentUser.email) return;
+      
+      // Definisikan userlap di luar agar bisa diakses di dalam dan luar
+      let userlap = currentUser.fullName || currentUser.email.split('@')[0];
+      
+      // Mengambil data lengkap user dari master spreadsheet
+      google.script.run
+        .withSuccessHandler(function(userData) {
+          if (userData) {
+            // Update currentUser dengan data terbaru
+            currentUser = {
+              ...currentUser,
+              fullName: userData.FullName || currentUser.email.split('@')[0],
+              role: userData.Role || 'user',
+              telegramId: userData.TelegramToken || '',
+              status: userData.Status || 'active'
+            };
+
+            // PERBAIKAN: Update nilai userlap di sini juga
+            userlap = currentUser.fullName;
+          }
+          
+          // Pindahkan sisa logika ke dalam fungsi ini
+          const reportType = document.getElementById('pdfTypeSelector').value;
+          const assessor1 = document.getElementById('assessor1').value.trim() || 'Guntur Sulistyo R';
+          const assessor2 = document.getElementById('assessor2').value.trim() || 'AMIN';
+          const customDate = document.getElementById('customDate').value;
+
+          // Ambil periode tanggal jika tipe laporan adalah resetDevice
+          let startDate = null;
+          let endDate = null;
+          if (reportType === 'resetDevice') {
+            startDate = document.getElementById('startDate').value;
+            endDate = document.getElementById('endDate').value;
+            
+            // Validasi periode tanggal
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+              showMessage('Tanggal awal tidak boleh lebih besar dari tanggal akhir', 'error');
+              return;
+            }
+          }
+          
+          showLoading();
+          
+          let backendFunction;
+          if (reportType === 'resetDevice') {
+            backendFunction = 'generatePdfResetDevice';
+          } else {
+            backendFunction = 'generatePdfLaporan';
+          }
+
+          google.script.run
+            .withSuccessHandler(function(url) {
+              hideLoading();
+              const pdfLink = document.getElementById('pdfUrl');
+              pdfLink.href = url;
+              pdfLink.classList.remove('d-none');
+              pdfLink.click();
+
+              loadPdfHistory();
+            })
+            .withFailureHandler(function(error) {
+              hideLoading();
+              showMessage('Gagal membuat PDF: ' + error.message, 'error');
+            })
+            [backendFunction]( 
+              currentUser.email,
+              userlap, // Sekarang ini akan berfungsi
+              assessor1,
+              assessor2,
+              customDate,
+              startDate,
+              endDate
+            );
+        })
+        .withFailureHandler(function(error) {
+          // Tampilkan pesan error jika gagal mengambil data user
+          showMessage('Gagal mengambil data user: ' + error.message, 'error');
+        })
+        .getUserDetail(currentUser.email);
+    }
+
+    // ========== PROFILE FUNCTIONS ==========
+    function updateProfile() {
+      const newFullName = document.getElementById('newFullName').value.trim();
+      const newPass = document.getElementById('newPass').value;
+      const newTelegram = document.getElementById('newTelegram').value.trim();
+      
+      const updates = {};
+      if (newFullName) updates.newFullName = newFullName;
+      if (newPass) updates.newPassword = newPass;
+      if (newTelegram) updates.newTelegramId = newTelegram;
+      
+      if (Object.keys(updates).length === 0) {
+        showMessage('Tidak ada perubahan yang dibuat', 'info');
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            showMessage('Profile berhasil diperbarui');
+            // Update currentUser jika nama berubah
+            if (newFullName && currentUser) {
+              currentUser.fullName = newFullName;
+              document.getElementById('userFullName').textContent = newFullName;
+            }
+            // Clear form
+            document.getElementById('newFullName').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('newTelegram').value = '';
+          } else {
+            showMessage(response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showMessage('Update gagal: ' + error.message, 'error');
+        })
+        .updateProfile(currentUser.email, updates);
+    }
+
+    // Di index.txt, ganti fungsi generateToken() dengan yang berikut:
+    function generateToken() {
+      if (!currentUser || !currentUser.email) return;
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          hideLoading();
+          if (response.success) {
+            const token = response.token;
+            const botUsername = response.botUsername; // Ambil dari response, bukan CONFIG
+            
+            // Tampilkan token dan instruksi untuk menghubungkan dengan bot
+            const tokenLink = document.getElementById('tokenLink');
+            tokenLink.innerHTML = `
+              <div class="alert alert-success">
+                <h5>Token Berhasil Dibuat!</h5>
+                <p>Token Anda: <strong>${token}</strong></p>
+                <p>Untuk menghubungkan dengan bot Telegram:</p>
+                <ol>
+                  <li>Buka bot <a href="https://t.me/${botUsername}" target="_blank">@${botUsername}</a></li>
+                  <li>Kirim pesan dengan format: <code style="cursor:pointer"
+                  data-text="/connect ${token}"
+                  onclick="copyToClipboard(this.dataset.text)">
+                  /connect ${token})
+                  </code>
+                  </li>
+                  <li>Setelah terhubung, Anda dapat menggunakan semua fitur bot</li>
+                </ol>
+              </div>
+            `;
+          } else {
+            showMessage('Gagal generate token: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showMessage('Error: ' + error.message, 'error');
+        })
+        .generateTelegramToken(currentUser.email); // Panggil fungsi backend
+      }
+
+    // ========== ADMIN FUNCTIONS ==========
+    function loadUsersForAdmin() {
+      console.log('=== loadUsersForAdmin dipanggil ===');
+      
+      if (!currentUser || currentUser.role !== 'admin') {
+        console.log('User bukan admin atau tidak login');
+        return;
+      }
+      
+      // Show loading
+      const tbody = document.querySelector('#usersTable tbody');
+      if (!tbody) {
+        console.error('Tabel users tidak ditemukan di DOM');
+        return;
+      }
+      
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="alert alert-light m-0">
+              <i class="fas fa-spinner fa-spin"></i> Memuat data user...
+            </div>
+          </td>
+        </tr>
+      `;
+      
+      console.log('Memanggil getAllUsers...');
+      
+      // Gunakan timeout untuk handle kemungkinan timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout: Server tidak merespon')), 10000);
+      });
+      
+      const usersPromise = new Promise((resolve, reject) => {
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(reject)
+          .getAllUsers();
+      });
+      
+      // Race antara timeout dan users promise
+      Promise.race([usersPromise, timeoutPromise])
+        .then(function(users) {
+          console.log('Data users diterima:', users);
+          console.log('Tipe data:', typeof users);
+          console.log('Array?', Array.isArray(users));
+          
+          // Jika data null/undefined, coba fungsi test
+          if (!users) {
+            console.warn('Data users null, mencoba fungsi test...');
+            return google.script.run
+              .withSuccessHandler(function(testUsers) {
+                console.log('Data test diterima:', testUsers);
+                updateUsersTable(testUsers || []);
+              })
+              .withFailureHandler(function(error) {
+                console.error('Error test function:', error);
+                updateUsersTable([]);
+              })
+              .getAllUsersTest();
+          }
+          
+          // Pastikan users adalah array
+          if (!Array.isArray(users)) {
+            console.error('Data users bukan array:', users);
+            users = [];
+          }
+          
+          updateUsersTable(users);
+        })
+        .catch(function(error) {
+          console.error('Error loading users:', error);
+          handleUsersError(error);
+        });
+    }
+
+    function updateUsersTable(users) {
+      console.log('updateUsersTable dengan data:', users);
+      
+      const tbody = document.querySelector('#usersTable tbody');
+      if (!tbody) {
+        console.error('Tbody tidak ditemukan');
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      
+      if (!users || users.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center">
+              <div class="alert alert-info m-0">
+                <i class="fas fa-info-circle"></i> Tidak ada data user.
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      console.log('Menampilkan', users.length, 'user');
+      
+      users.forEach((user, index) => {
+        const tr = document.createElement('tr');
+        
+        // Escape email untuk menghindari XSS
+        const email = escapeHtml(user.Email || '');
+        const fullName = escapeHtml(user.FullName || '');
+        
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${email}</td>
+          <td>${fullName}</td>
+          <td>
+            <span class="badge ${user.Role === 'admin' ? 'bg-danger' : 'bg-primary'}">
+              ${user.Role || 'user'}
+            </span>
+          </td>
+          <td>
+            <span class="badge ${user.Status === 'active' ? 'bg-success' : 'bg-warning'}">
+              ${user.Status || 'inactive'}
+            </span>
+          </td>
+          <td>
+            ${user.TelegramToken ? 
+              `<span class="badge bg-info">${escapeHtml(user.TelegramToken.substring(0, 8))}...</span>` : 
+              '<span class="text-muted">-</span>'
+            }
+          </td>
+          <td>
+            ${user.ChatID ? 
+              `<span class="badge bg-info">${escapeHtml(user.ChatID.substring(0, 8))}...</span>` : 
+              '<span class="text-muted">-</span>'
+            }
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="fillUserData('${email}')">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+      
+      console.log('Tabel user diupdate dengan', users.length, 'baris');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    function handleUsersError(error) {
+      const tbody = document.querySelector('#usersTable tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center text-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h5>Error Loading Users</h5>
+            <p>${error.message || 'Unknown error'}</p>
+            <div class="mt-3">
+              <button class="btn btn-sm btn-primary" onclick="loadUsersForAdmin()">
+                <i class="fas fa-redo"></i> Coba Lagi
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function fillUserData(email) {
+      console.log('Fill user data untuk:', email);
+      
+      // Panggil fungsi untuk mendapatkan detail user
+      google.script.run
+        .withSuccessHandler(function(userDetail) {
+          if (userDetail) {
+            document.getElementById('resetEmail').value = userDetail.Email || '';
+            document.getElementById('resetTelegram').value = userDetail.TelegramToken || '';
+            document.getElementById('resetStatus').value = userDetail.Status || 'active';
+            document.getElementById('resetChatId').value = userDetail.ChatID || '';
+            
+            // Scroll ke form reset
+            document.getElementById('resetEmail').scrollIntoView({ behavior: 'smooth' });
+            
+            showMessage(`Data ${userDetail.Email} dimuat untuk edit`, 'info');
+          }
+        })
+        .getUserDetail(email);
+    }
+
+    function resetUser() {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showMessage('Hanya admin yang bisa reset user', 'error');
+        return;
+      }
+      
+      const targetEmail = document.getElementById('resetEmail').value.trim();
+      const newPass = document.getElementById('resetPass').value;
+      const newTelegram = document.getElementById('resetTelegram').value.trim();
+      const newStatus = document.getElementById('resetStatus').value;
+      const newChatId = document.getElementById('resetChatId').value.trim();
+      
+      if (!targetEmail) {
+        showMessage('Email tujuan harus diisi', 'error');
+        return;
+      }
+      
+      if (!confirm(`Update data untuk ${targetEmail}?\n\nStatus: ${newStatus}\nTelegram: ${newTelegram || '(tidak berubah)'}\nPassword: ${newPass ? 'akan diubah' : 'tidak berubah'}`)) {
+        return;
+      }
+      
+      // Show loading
+      const resetButton = document.querySelector('#adminSection .btn-warning');
+      const originalText = resetButton.innerHTML;
+      resetButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      resetButton.disabled = true;
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          resetButton.innerHTML = originalText;
+          resetButton.disabled = false;
+          
+          if (result.success) {
+            showMessage(result.message, 'success');
+            
+            // Clear form
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('resetPass').value = '';
+            document.getElementById('resetTelegram').value = '';
+            document.getElementById('resetStatus').value = 'active';
+            document.getElementById('resetChatId').value = '';
+            
+            // Reload user list
+            loadUsersForAdmin();
+          } else {
+            showMessage(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          resetButton.innerHTML = originalText;
+          resetButton.disabled = false;
+          showMessage('Error: ' + error.message, 'error');
+        })
+        .resetUserData(currentUser.email, targetEmail, newPass, newTelegram, newStatus, newChatId);
+    }
+
+    // ========== UTILITY FUNCTIONS ==========
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => showMessage('Link berhasil disalin', 'success'))
+        .catch(() => showMessage('Gagal menyalin link', 'error'));
+    }
+
+    // ========== EVENT LISTENERS ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing app...');
+      
+      // Setup event listeners untuk form submission dengan Enter
+      document.getElementById('loginPass')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') login();
+      });
+      
+      document.getElementById('regPass')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') register();
+      });
+      
+      // Setup responsive sidebar behavior
+      window.addEventListener('resize', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (window.innerWidth >= 768) {
+          sidebar.classList.remove('show');
+          mainContent.classList.remove('shifted');
+        }
+      });
+      
+      // Initialize app
+      setTimeout(initApp, 500); // Beri waktu untuk resources load
+    });
+
+    // Handle errors during loading
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e);
+      if (isLoading) {
+        document.getElementById('loading').innerHTML = `
+          <div class="text-danger">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h4>Error Loading Resources</h4>
+            <p>Silakan refresh halaman atau coba lagi nanti.</p>
+            <button class="btn btn-primary mt-3" onclick="window.location.reload()">
+              <i class="fas fa-redo"></i> Refresh
+            </button>
+          </div>
+        `;
+      }
+    });
+
+    // Di JavaScript
+    function showNotification(message, type = 'info', duration = 5000) {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      let icon = '';
+      switch(type) {
+        case 'success': icon = '<i class="fas fa-check-circle text-success me-2"></i>'; break;
+        case 'error': icon = '<i class="fas fa-exclamation-circle text-danger me-2"></i>'; break;
+        case 'warning': icon = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>'; break;
+        case 'info': icon = '<i class="fas fa-info-circle text-primary me-2"></i>'; break;
+      }
+      
+      notification.innerHTML = `
+        ${icon}
+        <div class="flex-grow-1">${message}</div>
+        <button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>
+      `;
+      
+      container.appendChild(notification);
+      
+      // Auto remove after duration
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => notification.remove(), 300);
+      }, duration);
+    }
+
+    // Tambahkan animasi slideOut
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    function loadAnalytics() {
+      if (!currentUser || !currentUser.email) return;
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            const data = response.data;
+            
+            // Update counters
+            document.getElementById('totalReports').textContent = data.totalReports;
+            document.getElementById('completedTasks').textContent = data.completedTasks;
+            document.getElementById('pendingTasks').textContent = data.pendingTasks;
+            document.getElementById('todayActivity').textContent = data.todayActivity;
+            
+            // Update percentages
+            document.getElementById('reportsGrowth').textContent = `${data.growth > 0 ? '+' : ''}${data.growth}%`;
+            document.getElementById('completionRate').textContent = `${data.completionRate}%`;
+            document.getElementById('pendingRate').textContent = `${data.pendingRate}%`;
+            document.getElementById('activityStatus').textContent = data.activityStatus;
+            
+            // Create monthly chart
+            createMonthlyChart(data.monthlyData);
+            
+            // Create project chart
+            createProjectChart(data.projectData);
+            
+            hideLoading();
+          } else {
+            hideLoading();
+            showNotification('Gagal memuat data analytics: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showNotification('Error memuat analytics: ' + error.message, 'error');
+        })
+        .getAnalyticsData(currentUser.email);
+    }
+
+    // Fungsi untuk membuat chart (membutuhkan Chart.js)
+    function createMonthlyChart(monthlyData) {
+      const ctx = document.getElementById('monthlyChart').getContext('2d');
+      
+      // Sort months
+      const sortedMonths = Object.keys(monthlyData).sort();
+      const labels = sortedMonths.map(month => {
+        const [year, monthNum] = month.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${monthNames[parseInt(monthNum) - 1]} ${year}`;
+      });
+      const values = sortedMonths.map(month => monthlyData[month]);
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Jumlah Laporan',
+            data: values,
+            backgroundColor: 'rgba(67, 97, 238, 0.2)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createProjectChart(projectData) {
+      const ctx = document.getElementById('projectChart').getContext('2d');
+      
+      const labels = Object.keys(projectData);
+      const values = Object.values(projectData);
+      
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              'rgba(67, 97, 238, 0.8)',
+              'rgba(247, 37, 133, 0.8)',
+              'rgba(6, 255, 165, 0.8)',
+              'rgba(255, 190, 11, 0.8)',
+              'rgba(251, 86, 7, 0.8)'
+            ],
+            borderColor: [
+              'rgba(67, 97, 238, 1)',
+              'rgba(247, 37, 133, 1)',
+              'rgba(6, 255, 165, 1)',
+              'rgba(255, 190, 11, 1)',
+              'rgba(251, 86, 7, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Di frontend, tambahkan fungsi untuk task management
+    function loadTasks() {
+      if (!currentUser || !currentUser.email) return;
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            updateTaskTable(response.data);
+            updateUpcomingDeadlines(response.data);
+            hideLoading();
+          } else {
+            hideLoading();
+            showNotification('Gagal memuat data task: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showNotification('Error memuat tasks: ' + error.message, 'error');
+        })
+        .getTasks(currentUser.email);
+    }
+
+    function updateTaskTable(tasks) {
+      const tbody = document.querySelector('#taskTable tbody');
+      tbody.innerHTML = '';
+      
+      if (tasks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No tasks found</td></tr>';
+        return;
+      }
+      
+      tasks.forEach(task => {
+        const tr = document.createElement('tr');
+        
+        let priorityBadge = '';
+        switch(task.priority) {
+          case 'urgent': priorityBadge = '<span class="badge bg-danger">Urgent</span>'; break;
+          case 'high': priorityBadge = '<span class="badge bg-warning">High</span>'; break;
+          case 'medium': priorityBadge = '<span class="badge bg-info">Medium</span>'; break;
+          case 'low': priorityBadge = '<span class="badge bg-secondary">Low</span>'; break;
+        }
+        
+        let statusBadge = '';
+        switch(task.status) {
+          case 'completed': statusBadge = '<span class="badge bg-success">Completed</span>'; break;
+          case 'in-progress': statusBadge = '<span class="badge bg-primary">In Progress</span>'; break;
+          case 'pending': statusBadge = '<span class="badge bg-warning">Pending</span>'; break;
+          default: statusBadge = '<span class="badge bg-secondary">Not Started</span>';
+        }
+        
+        // Check if due date is approaching
+        const dueDate = new Date(task.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        
+        let dueDateClass = '';
+        if (daysUntilDue < 0) {
+          dueDateClass = 'text-danger';
+        } else if (daysUntilDue <= 3) {
+          dueDateClass = 'text-warning';
+        }
+        
+        tr.innerHTML = `
+          <td>${task.name}</td>
+          <td>${task.project}</td>
+          <td class="${dueDateClass}">${formatDate(dueDate, 'dd/MM/yyyy')}</td>
+          <td>${priorityBadge}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="editTask('${task.id}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteTask('${task.id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateUpcomingDeadlines(tasks) {
+      const container = document.getElementById('upcomingDeadlines');
+      container.innerHTML = '';
+      
+      // Filter tasks that are not completed and sort by due date
+      const incompleteTasks = tasks
+        .filter(task => task.status !== 'completed')
+        .map(task => ({ ...task, dueDateObj: new Date(task.dueDate) }))
+        .sort((a, b) => a.dueDateObj - b.dueDateObj)
+        .slice(0, 5); // Only show top 5
+      
+      if (incompleteTasks.length === 0) {
+        container.innerHTML = '<p class="text-muted">No upcoming deadlines</p>';
+        return;
+      }
+      
+      incompleteTasks.forEach(task => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysUntilDue = Math.ceil((task.dueDateObj - today) / (1000 * 60 * 60 * 24));
+        
+        let urgencyClass = '';
+        let urgencyText = '';
+        
+        if (daysUntilDue < 0) {
+          urgencyClass = 'text-danger';
+          urgencyText = `${Math.abs(daysUntilDue)} days overdue`;
+        } else if (daysUntilDue === 0) {
+          urgencyClass = 'text-danger';
+          urgencyText = 'Due today';
+        } else if (daysUntilDue === 1) {
+          urgencyClass = 'text-warning';
+          urgencyText = 'Due tomorrow';
+        } else {
+          urgencyClass = 'text-info';
+          urgencyText = `${daysUntilDue} days left`;
+        }
+        
+        const taskElement = document.createElement('div');
+        taskElement.className = 'mb-3 p-2 border rounded';
+        taskElement.innerHTML = `
+          <h6 class="mb-1">${task.name}</h6>
+          <div class="d-flex justify-content-between">
+            <small class="text-muted">${task.project}</small>
+            <small class="${urgencyClass}">${urgencyText}</small>
+          </div>
+        `;
+        
+        container.appendChild(taskElement);
+      });
+    }
+
+    function showAddTaskModal() {
+      document.getElementById('taskModalLabel').textContent = 'Add Task';
+      document.getElementById('taskForm').reset();
+      document.getElementById('taskId').value = '';
+      const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+      modal.show();
+    }
+
+    function editTask(taskId) {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            const task = response.data;
+            document.getElementById('taskModalLabel').textContent = 'Edit Task';
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskProject').value = task.project;
+            document.getElementById('taskDueDate').value = task.dueDate;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskDescription').value = task.description;
+            
+            const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+            modal.show();
+          } else {
+            showNotification('Failed to load task: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showNotification('Error loading task: ' + error.message, 'error');
+        })
+        .getTask(currentUser.email, taskId);
+    }
+
+    function saveTask() {
+      const task = {
+        id: document.getElementById('taskId').value,
+        name: document.getElementById('taskName').value,
+        project: document.getElementById('taskProject').value,
+        dueDate: document.getElementById('taskDueDate').value,
+        priority: document.getElementById('taskPriority').value,
+        description: document.getElementById('taskDescription').value,
+        status: 'pending'
+      };
+      
+      if (!task.name || !task.project || !task.dueDate) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+            modal.hide();
+            loadTasks();
+            showNotification(response.message, 'success');
+          } else {
+            showNotification('Failed to save task: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showNotification('Error saving task: ' + error.message, 'error');
+        })
+        .saveTask(currentUser.email, task);
+    }
+
+    function deleteTask(taskId) {
+      if (!confirm('Are you sure you want to delete this task?')) return;
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            loadTasks();
+            showNotification(response.message, 'success');
+          } else {
+            showNotification('Failed to delete task: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showNotification('Error deleting task: ' + error.message, 'error');
+        })
+        .deleteTask(currentUser.email, taskId);
+    }
+
+    function loadBackupHistory() {
+      if (!currentUser || !currentUser.email) return;
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            updateBackupHistoryTable(response.data);
+            hideLoading();
+          } else {
+            hideLoading();
+            showNotification('Failed to load backup history: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showNotification('Error loading backup history: ' + error.message, 'error');
+        })
+        .getBackupHistory(currentUser.email);
+    }
+
+    function updateBackupHistoryTable(backups) {
+      const tbody = document.querySelector('#backupHistoryTable tbody');
+      tbody.innerHTML = '';
+      
+      if (backups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No backup history found</td></tr>';
+        return;
+      }
+      
+      backups.forEach(backup => {
+        const tr = document.createElement('tr');
+        
+        const createdAt = new Date(backup.createdAt);
+        const formattedDate = formatDate(createdAt, 'dd/MM/yyyy HH:mm:ss');
+        const fileSize = (backup.size / 1024).toFixed(2) + ' KB';
+        
+        tr.innerHTML = `
+          <td>${backup.name}</td>
+          <td>-</td>
+          <td>${formattedDate}</td>
+          <td>${fileSize}</td>
+          <td>
+            <a href="${backup.downloadUrl}" class="btn btn-sm btn-primary" download>
+              <i class="fas fa-download"></i> Download
+            </a>
+            <button class="btn btn-sm btn-warning" onclick="restoreFromBackup('${backup.id}')">
+              <i class="fas fa-undo"></i> Restore
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    function createBackup() {
+      const name = document.getElementById('backupName').value.trim();
+      const description = document.getElementById('backupDescription').value.trim();
+      
+      if (!name) {
+        showNotification('Please enter a backup name', 'error');
+        return;
+      }
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            document.getElementById('backupResult').innerHTML = `
+              <div class="alert alert-success">
+                <strong>Success!</strong> Backup created successfully.
+                <a href="${response.downloadUrl}" class="btn btn-sm btn-primary mt-2" download>
+                  <i class="fas fa-download"></i> Download Backup
+                </a>
+              </div>
+            `;
+            
+            // Reset form
+            document.getElementById('backupName').value = '';
+            document.getElementById('backupDescription').value = '';
+            
+            // Refresh backup history
+            loadBackupHistory();
+            
+            hideLoading();
+            showNotification(response.message, 'success');
+          } else {
+            document.getElementById('backupResult').innerHTML = `
+              <div class="alert alert-danger">
+                <strong>Error!</strong> ${response.message}
+              </div>
+            `;
+            hideLoading();
+            showNotification(response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('backupResult').innerHTML = `
+            <div class="alert alert-danger">
+              <strong>Error!</strong> ${error.message}
+            </div>
+          `;
+          hideLoading();
+          showNotification('Error creating backup: ' + error.message, 'error');
+        })
+        .createBackup(currentUser.email, name, description);
+    }
+
+    function restoreFromBackup(fileId) {
+      if (!confirm('Are you sure you want to restore from this backup? This will replace all current data and cannot be undone.')) {
+        return;
+      }
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            document.getElementById('restoreResult').innerHTML = `
+              <div class="alert alert-success">
+                <strong>Success!</strong> Data restored successfully.
+              </div>
+            `;
+            
+            // Refresh data
+            loadReportData();
+            
+            hideLoading();
+            showNotification(response.message, 'success');
+          } else {
+            document.getElementById('restoreResult').innerHTML = `
+              <div class="alert alert-danger">
+                <strong>Error!</strong> ${response.message}
+              </div>
+            `;
+            hideLoading();
+            showNotification(response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('restoreResult').innerHTML = `
+            <div class="alert alert-danger">
+              <strong>Error!</strong> ${error.message}
+            </div>
+          `;
+          hideLoading();
+          showNotification('Error restoring backup: ' + error.message, 'error');
+        })
+        .restoreFromBackup(currentUser.email, fileId);
+    }
+
+    function restoreBackup() {
+      const fileInput = document.getElementById('backupFile');
+      
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showNotification('Please select a backup file', 'error');
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const backupData = JSON.parse(e.target.result);
+          
+          if (!backupData.sheets) {
+            showNotification('Invalid backup file format', 'error');
+            return;
+          }
+          
+          if (!confirm('Are you sure you want to restore from this backup? This will replace all current data and cannot be undone.')) {
+            return;
+          }
+          
+          showLoading();
+          
+          // Upload file to Drive and get ID
+          const blob = Utilities.newBlob(JSON.stringify(backupData), 'application/json', file.name);
+          const driveFile = DriveApp.createFile(blob);
+          
+          // Restore from the uploaded file
+          google.script.run
+            .withSuccessHandler(function(response) {
+              if (response.success) {
+                document.getElementById('restoreResult').innerHTML = `
+                  <div class="alert alert-success">
+                    <strong>Success!</strong> Data restored successfully.
+                  </div>
+                `;
+                
+                // Refresh data
+                loadReportData();
+                
+                hideLoading();
+                showNotification(response.message, 'success');
+              } else {
+                document.getElementById('restoreResult').innerHTML = `
+                  <div class="alert alert-danger">
+                    <strong>Error!</strong> ${response.message}
+                  </div>
+                `;
+                hideLoading();
+                showNotification(response.message, 'error');
+              }
+            })
+            .withFailureHandler(function(error) {
+              document.getElementById('restoreResult').innerHTML = `
+                <div class="alert alert-danger">
+                  <strong>Error!</strong> ${error.message}
+                </div>
+              `;
+              hideLoading();
+              showNotification('Error restoring backup: ' + error.message, 'error');
+            })
+            .restoreFromBackup(currentUser.email, driveFile.getId());
+        } catch (error) {
+          showNotification('Error parsing backup file: ' + error.message, 'error');
+        }
+      };
+      
+      reader.readAsText(file);
+    }
+
+    // Di index.txt, modifikasi fungsi showTelegramConnectionStatus:
+    function showTelegramConnectionStatus() {
+      if (!currentUser || !currentUser.email) return;
+      
+      // Pertama, dapatkan konfigurasi bot
+      google.script.run
+        .withSuccessHandler(function(botConfig) {
+          // Kemudian, dapatkan status koneksi
+          google.script.run
+            .withSuccessHandler(function(response) {
+              const statusDiv = document.getElementById('telegramStatus');
+              
+              if (response.connected) {
+                statusDiv.innerHTML = `
+                  <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> ${response.message}
+                  </div>
+                `;
+              } else {
+                let message = response.message;
+                if (response.token) {
+                  message += `<br>Token: <strong>${response.token}</strong>`;
+                  message += `<br>Untuk menghubungkan: <ol>
+                    <li>Buka bot <a href="${botConfig.telegramUrl}" target="_blank">@${botConfig.botUsername}</a></li>
+                    <li>Kirim pesan dengan format: <code>/connect ${response.token}</code></li>
+                  </ol>`;
+                }
+                
+                statusDiv.innerHTML = `
+                  <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                  </div>
+                `;
+              }
+            })
+            .withFailureHandler(function(error) {
+              const statusDiv = document.getElementById('telegramStatus');
+              statusDiv.innerHTML = `
+                <div class="alert alert-danger">
+                  <i class="fas fa-times-circle"></i> Error: ${error.message}
+                </div>
+              `;
+            })
+            .getTelegramConnectionStatus(currentUser.email);
+        })
+        .withFailureHandler(function(error) {
+          const statusDiv = document.getElementById('telegramStatus');
+          statusDiv.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="fas fa-times-circle"></i> Error: ${error.message}
+            </div>
+          `;
+        })
+        .getBotConfig();
+    }
+
+    // Fungsi untuk membuka modal edit
+    function editLaporan(index) {
+      // Ambil data dari baris yang dipilih
+      const rowData = currentLaporanData[index];
+      
+      // Isi form modal dengan data yang ada
+      document.getElementById('editLaporanIndex').value = index;
+      document.getElementById('editLaporanTanggal').value = formatDateForInput(rowData[1]); // Kolom Tanggal
+      document.getElementById('editLaporanProject').value = rowData[2]; // Kolom Project
+      document.getElementById('editLaporanTask').value = rowData[3]; // Kolom Task
+      document.getElementById('editLaporanProgress').value = rowData[4]; // Kolom Progress
+      document.getElementById('editLaporanTarget').value = formatDateForInput(rowData[5]); // Kolom Target
+      document.getElementById('editLaporanNote').value = rowData[6]; // Kolom Note
+      
+      // Tampilkan modal
+      const editModal = new bootstrap.Modal(document.getElementById('editLaporanModal'));
+      editModal.show();
+    }
+
+    // Fungsi untuk menyimpan perubahan
+    function saveEditedLaporan() {
+      if (!currentUser || !currentUser.email) return;
+
+      const progressValue = parseInt(document.getElementById('editLaporanProgress').value,10);
+
+      if (isNaN(progressValue) || progressValue < 0 || progressValue > 100) {
+        alert('Progress harus antara 0–100');
+        return;
+      }
+      
+      const globalIndex = parseInt(document.getElementById('editLaporanIndex').value);
+      const updatedData = {
+        date: document.getElementById('editLaporanTanggal').value,
+        project: document.getElementById('editLaporanProject').value,
+        task: document.getElementById('editLaporanTask').value,
+        progress: progressValue,
+        target: document.getElementById('editLaporanTarget').value,
+        note: document.getElementById('editLaporanNote').value
+      };
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          hideLoading();
+          if (response.success) {
+            showMessage('Laporan berhasil diperbarui!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editLaporanModal')).hide();
+            loadReportData(currentPage); // Refresh data tabel di halaman yang sama
+          } else {
+            showMessage('Gagal memperbarui laporan: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showMessage('Error: ' + error.message, 'error');
+        })
+        .updateLaporanData(currentUser.email, globalIndex, updatedData); // Kirim globalIndex
+    }
+
+    // Ganti fungsi deleteLaporan
+    function deleteLaporan(globalIndex) { // Terima globalIndex sebagai parameter
+      if (!currentUser || !currentUser.email) return;
+      
+      const isConfirmed = confirm('Apakah Anda yakin ingin menghapus data laporan ini?');
+      if (!isConfirmed) return;
+      
+      showLoading();
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          hideLoading();
+          if (response.success) {
+            showMessage('Laporan berhasil dihapus!', 'success');
+            loadReportData(currentPage); // Refresh data tabel di halaman yang sama
+          } else {
+            showMessage('Gagal menghapus laporan: ' + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showMessage('Error: ' + error.message, 'error');
+        })
+        .deleteLaporanData(currentUser.email, globalIndex); // Kirim globalIndex
+    }
+
+    // Helper function untuk format tanggal ke format YYYY-MM-DD
+    function formatDateForInput(dateValue) {
+      if (!dateValue) return '';
+      
+      try {
+        let date;
+        if (typeof dateValue === 'string') {
+          // Coba parsing string tanggal (misal: "dd/MM/yyyy")
+          const parts = dateValue.split('/');
+          if (parts.length === 3) {
+            date = new Date(parts[2], parts[1] - 1, parts[0]);
+          } else {
+            date = new Date(dateValue);
+          }
+        } else if (dateValue instanceof Date) {
+          date = dateValue;
+        } else {
+          return '';
+        }
+        
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        return '';
+      }
+    }
+
+    // Fungsi untuk memuat riwayat PDF
+    function loadPdfHistory() {
+      if (!currentUser || !currentUser.email) return;
+      
+      const tableBody = document.getElementById('pdfHistoryTableBody');
+      if (!tableBody) return;
+
+      // Tampilkan loading di dalam tabel
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center">
+            <div class="spinner-border spinner-border-sm" role="status"></div> Memuat riwayat PDF...
+          </td>
+        </tr>
+      `;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            updatePdfHistoryTable(response.data);
+          } else {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="4" class="text-center text-danger">
+                  Gagal memuat riwayat: ${response.message}
+                </td>
+              </tr>
+            `;
+          }
+        })
+        .withFailureHandler(function(error) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center text-danger">
+                Error: ${error.message}
+              </td>
+            </tr>
+          `;
+        })
+        .getPdfHistory(currentUser.email);
+    }
+
+    // Fungsi untuk mengupdate tabel riwayat PDF
+    function updatePdfHistoryTable(pdfHistory) {
+      const tableBody = document.getElementById('pdfHistoryTableBody');
+      tableBody.innerHTML = '';
+
+      if (!pdfHistory || pdfHistory.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="text-center text-muted">
+              Belum ada file PDF yang dibuat.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      pdfHistory.forEach(pdf => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${pdf.name}</td>
+          <td>${pdf.createdAt}</td>
+          <td>${pdf.size}</td>
+          <td>
+            <a href="${pdf.downloadUrl}" class="btn btn-sm btn-primary" target="_blank" download>
+              <i class="fas fa-download"></i> Download
+            </a>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
